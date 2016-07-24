@@ -48,7 +48,7 @@ TAVP* vermelhoPreto(TAVP* arvore,TAVP* n);
 TAVP* remocaoFolha(TAVP*n,TAVP*arvore);
  
 int main(int argc, char *argv[]) {
-	
+	/*
 	TAVP *malfurion = inicializaTAVP();
     imprimeArvore(malfurion);
     printf("\n");
@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
     removido = busca(malfurion,13);
     malfurion = removeAluno(removido, malfurion);
     imprime_debug_AVP(malfurion);
-	/*
+	*/
 	TAVP *malfurion = inicializaTAVP();
 
   	int num = 0,numAux, matricula, matriculaNova;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 	    	printf("Modo de remocao\n Digite a matricula:\n");
 	    	scanf("%d", &matricula);
 	    	TAVP *aluno = busca(malfurion,matricula);
-			removeAluno(aluno,malfurion);
+			malfurion = removeAluno(aluno,malfurion);
 	    }
 	    else if(num == 5){
 		    printf("\n");
@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
 			printf("Operacao nao existe");
 		}
     	printf("\n\n");
-	}*/
+	}
     system("PAUSE");
     return 0;
 }
