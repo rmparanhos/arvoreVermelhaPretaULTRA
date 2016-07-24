@@ -44,6 +44,7 @@ void delete_case4(TAVP *n , TAVP *arvore);
 void delete_case5(TAVP *n , TAVP *arvore);
 void delete_case6(TAVP *n , TAVP *arvore);
 TAVP* pretoPreto(TAVP *arvore, TAVP *no);
+TAVP* vermelhoPreto(TAVP* arvore,TAVP* n);
 TAVP* remocaoFolha(TAVP*n,TAVP*arvore);
  
 int main(int argc, char *argv[]) {
@@ -78,7 +79,7 @@ int main(int argc, char *argv[]) {
     malfurion = insereAluno(malfurion, 15,10,"raffael");
     imprimeArvore(malfurion);
     printf("\n");
-    malfurion = insereAluno(malfurion, 21,10,"raffael");//nao //problema da folha
+    malfurion = insereAluno(malfurion, 21,10,"raffael");
     imprimeArvore(malfurion);
     printf("\n");
     malfurion = insereAluno(malfurion, 23,10,"raffael");//nao // problema da folha
@@ -102,7 +103,11 @@ int main(int argc, char *argv[]) {
     printf("\n");
     imprimeArvore(malfurion);
     printf("\n");
-    TAVP* removido = busca(malfurion,21);
+    TAVP* removido = busca(malfurion,1);
+    malfurion = removeAluno(removido, malfurion);
+    removido = busca(malfurion,12);
+    malfurion = removeAluno(removido, malfurion);
+    removido = busca(malfurion,13);
     malfurion = removeAluno(removido, malfurion);
     imprime_debug_AVP(malfurion);
 	/*
@@ -454,9 +459,7 @@ AVP* corrigePretoPreto(TAVP *arvore,TAVP *pai,TAVP *no,int case){
 */
 TAVP* removeAluno(TAVP *n, TAVP *arvore){
 	TAVP *filho = n;
-	
-	
-	
+	int trigger = 1;
 	if(!(n->dir)&& !(n -> esq)){	
 		return remocaoFolha(n,arvore);
 	}
@@ -476,23 +479,40 @@ TAVP* removeAluno(TAVP *n, TAVP *arvore){
 		troca(n,filho); // Programa para aqui <- TESTADO
 		printf("passou pela troca\n");
 	}
-		printf("chegou em remoção\n");
-		if (n->cor == 'P') {
-			if (filho->cor == 'V')
-				filho->cor = 'P';
-		    else
-		   		delete_case1(filho,arvore);
+	printf("chegou em remoção\n");
+	if (n->cor == 'P') {
+		if (filho->cor == 'V'){
+		    trigger = 0;
+			filho->cor = 'P';
 		}
+	    else if((!filho->esq)&&(!filho->dir)){
+	    	return remocaoFolha(filho,arvore);
+		}
+		else{
+			trigger = 0;
+	   		delete_case1(filho,arvore);
+	   	}
+	}
+	if(trigger){
+	
 		if(filho->cor == 'P'){
 			if(filho->dir) filho->dir->cor = 'P';
 			if(filho->esq) filho->esq->cor = 'P';			
 		}
-		if(n->cor == 'P'&& filho->cor =='P'){
+		if(!obtemPai(n)){
+			arvore = buscaRaiz(arvore);
+			liberacaoRemocao(filho);
+			return arvore;
+		}
+		else if(n->cor == 'P'&& filho->cor =='P'){
 			return pretoPreto(arvore,n);
 		}
-		arvore = buscaRaiz(arvore);
-		liberacaoRemocao(filho);
-	
+		else if(n->cor == 'V'&& filho->cor =='P'){
+			return pretoPreto(arvore,filho);
+		}
+	}
+	arvore = buscaRaiz(arvore);
+	liberacaoRemocao(filho);
 	return arvore;
 }
 
@@ -562,8 +582,6 @@ void delete_case6(TAVP *n, TAVP *arvore){
 	TAVP* pai = obtemPai(n);
 	irmao->cor = pai->cor;
 	pai->cor = 'P';
-	imprime_debug_AVP(arvore);
-	printf("-\n");
 	if((irmao->esq)&&(irmao->dir)){
 		if (n == pai->esq) {
 			irmao->dir->cor = 'P';
@@ -575,6 +593,7 @@ void delete_case6(TAVP *n, TAVP *arvore){
 		}
 	}
 }
+
 TAVP* remocaoFolha(TAVP*n,TAVP*arvore){
 	TAVP* pai = obtemPai(n);
 	char remc,succ;
@@ -604,19 +623,67 @@ TAVP* remocaoFolha(TAVP*n,TAVP*arvore){
 }
 
 TAVP* pretoPreto(TAVP *arvore, TAVP *no){
-	if(no == obtemPai(no)->dir&&obtemIrmao(no)->esq->cor=='V'){
-		arvore = RSD(arvore,obtemPai(no));
-	}
-	if(no == obtemPai(no)->esq&&obtemIrmao(no)->dir->cor=='P'){
-		arvore = RSD(arvore,obtemPai(no));
-	}
-	if(no == obtemPai(no)->esq&&obtemIrmao(no)->dir->cor=='V'){
-		arvore = RSE(arvore, obtemPai(no));
-	}
-	liberacaoRemocao(no);
+    printf("Chegou aqui\n");
+    TAVP *pai = obtemPai(no); TAVP *irmao = obtemIrmao(no);
+    if(no == pai->dir && eFolha(irmao)){
+        pai -> esq -> cor = 'V';
+        pai -> cor = 'P';
+    }else if(no == pai ->esq && eFolha(irmao)){
+        pai -> dir -> cor = 'P';
+        pai -> cor = 'V';
+    }
+    else if(no == pai->dir&&(irmao -> esq && irmao->esq->cor=='V')){
+        printf("Chegou aqui\n");
+        arvore = RSD(arvore,pai);
+        irmao -> esq -> cor = 'P';
+        pai -> cor = 'P';
+        irmao -> cor = 'V';
+    }
+    else if(no == pai->esq&&(!irmao -> dir || irmao->dir->cor=='P')){
+        printf("Chegou aqui\n");
+        arvore = RSD(arvore,irmao);
+        arvore = RSE(arvore,pai);
+        pai -> cor = 'P';
+        obtemPai(pai) -> cor = 'V';
+        irmao -> cor = 'P';
+        if(irmao -> dir)irmao -> dir -> cor = 'V';
+    }
+    else if(no == pai->esq&&(irmao -> dir && irmao->dir->cor=='V')){
+        printf("Chegou aqui\n");
+        arvore = RSE(arvore,pai);
+        irmao -> dir -> cor = 'P';
+        pai -> cor = 'P';
+        irmao -> cor = 'V';
+    }
+    else if(no == pai->dir&&(!irmao -> esq || irmao->esq->cor=='P')){
+        printf("Chegou aqui\n");
+        arvore = RSE(arvore,irmao);
+        arvore = RSD(arvore,pai);
+        pai -> cor = 'P';
+        obtemPai(pai) -> cor = 'V';
+        irmao -> cor = 'P';
+        if(irmao -> esq)irmao -> esq -> cor = 'V';
+    }
+    printf("Chegou aqui\n");
+    liberacaoRemocao(no);
     return arvore;
 }
-
+ 
+/*TAVP* vermelhoPreto(TAVP* arvore,TAVP* n){	
+	TAVP *pai = obtemPai(n); TAVP *irmao = obtemIrmao(n);
+	if(n == pai->esq&&(!irmao -> dir || irmao->dir->cor=='P')){
+        printf("Chegou aqui\n");
+        arvore = RSD(arvore,irmao);
+        arvore = RSE(arvore,pai);
+        pai->cor = 'P';
+        obtemPai(pai)->cor = 'V';
+        irmao->cor = 'P';
+        if(irmao->dir) irmao->dir->cor = 'V';
+    }
+    return arvore;
+	
+}
+*/
 TAVP* obtemIrmao(TAVP* no){
 	if((!no)||(!obtemPai(no))){
 		return NULL;
