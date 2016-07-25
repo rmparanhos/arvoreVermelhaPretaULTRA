@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
  
-/* WIP */
+/*P L U S  U L T R A ! !*/
 typedef struct aluno{
     int mat;
     float cr;
@@ -18,7 +18,7 @@ typedef struct avp{
 //metodos pedidas pela prof
 void modifica_cr(TAluno *aluno, float novoCr);//testado
 void modifica_nome(TAluno *aluno, char *novoNome);//testado
-void modifica_mat(TAluno *aluno,TAVP *arvore, int novoMat);//retira o aluno e insere de novo //testado
+TAVP* modifica_mat(TAluno *aluno,TAVP *arvore, int novoMat);//retira o aluno e insere de novo //testado
 TAVP* insereAluno(TAVP *arvore, int matricula, float cr, char *nome);//testado
 TAVP* removeAluno(TAVP *aluno, TAVP *arvore);
 void imprimeArvore(TAVP *arvore); //testado
@@ -37,14 +37,13 @@ void troca(TAVP* no,TAVP* filho);
 void liberacaoRemocao(TAVP* filho);
 TAVP* buscaRaiz(TAVP* arvore);
 void imprime_debug_AVP(TAVP *a);
-void delete_case1(TAVP *n , TAVP *arvore);
-void delete_case2(TAVP *n , TAVP *arvore);
-void delete_case3(TAVP *n , TAVP *arvore);
-void delete_case4(TAVP *n , TAVP *arvore);
-void delete_case5(TAVP *n , TAVP *arvore);
-void delete_case6(TAVP *n , TAVP *arvore);
+void removeNivel1(TAVP *n , TAVP *arvore);
+void removeNivel2(TAVP *n , TAVP *arvore);
+void removeNivel3(TAVP *n , TAVP *arvore);
+void removeNivel4(TAVP *n , TAVP *arvore);
+void removeNivel5(TAVP *n , TAVP *arvore);
+void removeNivel6(TAVP *n , TAVP *arvore);
 TAVP* pretoPreto(TAVP *arvore, TAVP *no);
-TAVP* vermelhoPreto(TAVP* arvore,TAVP* n);
 TAVP* remocaoFolha(TAVP*n,TAVP*arvore);
  
 int main(int argc, char *argv[]) {
@@ -82,7 +81,7 @@ int main(int argc, char *argv[]) {
     malfurion = insereAluno(malfurion, 21,10,"raffael");
     imprimeArvore(malfurion);
     printf("\n");
-    malfurion = insereAluno(malfurion, 23,10,"raffael");//nao // problema da folha
+    malfurion = insereAluno(malfurion, 23,10,"raffael");
     imprimeArvore(malfurion);
     printf("\n");
     malfurion = insereAluno(malfurion, 25,10,"raffael");
@@ -163,7 +162,7 @@ int main(int argc, char *argv[]) {
 					else if(numAux == 2){
 						printf("Digite a nova matricula do aluno:\n");
 						scanf("%i",&matriculaNova);
-						modifica_mat(aluno->alunoNo,malfurion,matriculaNova);
+						malfurion = modifica_mat(aluno->alunoNo,malfurion,matriculaNova);
 					}
 					else if(numAux == 3){
 						printf("Digite o novo CR do aluno:\n");
@@ -207,13 +206,14 @@ void modifica_nome(TAluno *aluno, char *novoNome){
     strcpy(aluno->nome,novoNome);
 }
 
-void modifica_mat(TAluno *aluno, TAVP *arvore, int novoMat){
+TAVP* modifica_mat(TAluno *aluno, TAVP *arvore, int novoMat){
 	float crAux = aluno->cr;
 	char nomeAux[31];
 	strcpy(nomeAux,aluno->nome);
 	TAVP *alu = busca(arvore,aluno -> mat);
-	removeAluno(alu,arvore);
+	arvore = removeAluno(alu,arvore);
 	arvore = insereAluno(arvore,novoMat,crAux,nomeAux);
+	return arvore;
 }
  
 void imprimeAluno(TAluno *aluno){
@@ -405,58 +405,7 @@ TAVP* corrigeInsere(TAVP *arvore, TAVP *no){
     arvore->cor = 'P';
     return arvore;
 }
- /*
-TAVP* removeAluno(TAVP *arvore, int matricula){
-    TAVP *no = busca(arvore,matricula);
-    if(!no)return arvore;
-    TAVP *pai = obtemPai(no);
-    if(eFolha(no)){
-    	if(pai){
-		    if(pai -> dir && pai -> dir -> mat == no -> mat){
-    		    if(no -> cor == 'V'){
-    			    pai -> dir = NULL;
-    			    free(no);
-    			    return arvore;
-    		    }else{
-    		    	return corrigePretoPreto(arvore,pai,no,0);
-    	    }else{
-    	    	if(no -> cor == 'V'){
-    	    		pai -> esq = NULL;
-    	    		free(no);
-    	    		return arvore;
-				}else{
-					return corrigePretoPreto(arvore,pai,no,0);
-				}
-			}
-		}else{
-			return NULL;
-		}
-	}
 
-AVP* corrigePretoPreto(TAVP *arvore,TAVP *pai,TAVP *no,int case){
-    TAVP *irmao = obtemIrmao(no);
-    if(!case){	
-        if(pai -> cor == 'P'){
-		    if(pai -> dir -> mat == no -> mat){
-		    	pai -> dir = NULL;
-	    		free(no);
-			    if(irmao -> cor == 'P'){
-	    	        if(eFolha(irmao)){
-	    		        irmao -> cor = 'V';
-	    		        return arvore;
-			        }else{
-			    	    if(irmao -> dir && irmao -> esq){
-			    		    if(irmao -> dir == 'V' && irmao -> esq == 'V'){
-			    		    	
-						    }
-					    }
-			        }
-		        }
-            }
-        }
-	}
-}
-*/
 TAVP* removeAluno(TAVP *n, TAVP *arvore){
 	TAVP *filho = n;
 	int trigger = 1;
@@ -477,9 +426,7 @@ TAVP* removeAluno(TAVP *n, TAVP *arvore){
 	   		}
 		}
 		troca(n,filho); // Programa para aqui <- TESTADO
-		printf("passou pela troca\n");
 	}
-	printf("chegou em remoção\n");
 	if (n->cor == 'P') {
 		if (filho->cor == 'V'){
 		    trigger = 0;
@@ -490,7 +437,7 @@ TAVP* removeAluno(TAVP *n, TAVP *arvore){
 		}
 		else{
 			trigger = 0;
-	   		delete_case1(filho,arvore);
+	   		removeNivel1(filho,arvore);
 	   	}
 	}
 	if(trigger){
@@ -516,13 +463,11 @@ TAVP* removeAluno(TAVP *n, TAVP *arvore){
 	return arvore;
 }
 
-void delete_case1(TAVP *n , TAVP *arvore){
-	printf("chegou no caso 1\n");
-	if (obtemPai(n)) delete_case2(n,arvore);
+void removeNivel1(TAVP *n , TAVP *arvore){
+	if (obtemPai(n)) removeNivel2(n,arvore);
 }
 
-void delete_case2(TAVP *n,TAVP *arvore){
-	printf("chegou caso 2\n");
+void removeNivel2(TAVP *n,TAVP *arvore){
 	TAVP *pai = obtemPai(n);
 	TAVP *irmao = obtemIrmao(n);
 	if (irmao->cor == 'V') {
@@ -531,21 +476,19 @@ void delete_case2(TAVP *n,TAVP *arvore){
 		if (n == pai->esq) arvore = RSE(arvore,pai);
 		else arvore = RSD(arvore,pai);
 	}
-	delete_case3(n,arvore);
+	removeNivel3(n,arvore);
 }
 
-void delete_case3(TAVP *n,TAVP *arvore){
-	printf("chegou caso 3\n");
+void removeNivel3(TAVP *n,TAVP *arvore){
 	TAVP *irmao = obtemIrmao(n), *pai = obtemPai(n);
 	if ((pai->cor == 'P') &&(irmao->cor == 'P') &&(irmao->esq->cor == 'P') &&(irmao->dir->cor == 'P')) {
 		irmao->cor = 'V';
-		delete_case1(pai,arvore);
+		removeNivel1(pai,arvore);
 	}
-	else delete_case4(n,arvore);
+	else removeNivel4(n,arvore);
 }
 
-void delete_case4(TAVP *n, TAVP *arvore){
-	printf("chegou caso 4\n");
+void removeNivel4(TAVP *n, TAVP *arvore){
 	TAVP*irmao = obtemIrmao(n); TAVP*pai = obtemPai(n);
 	if((irmao->esq) && (irmao->dir)){
 		if ((pai->cor == 'V') && (irmao->cor == 'P') && (irmao->esq->cor == 'P') && (irmao->dir->cor == 'P')) {
@@ -553,31 +496,29 @@ void delete_case4(TAVP *n, TAVP *arvore){
 			pai->cor = 'P';
 		}
 	}
-	else delete_case5(n,arvore);
+	else removeNivel5(n,arvore);
 }
 
-void delete_case5(TAVP*n, TAVP*arvore){
-	printf("chegou caso5\n");
+void removeNivel5(TAVP*n, TAVP*arvore){
 	TAVP *irmao = obtemIrmao(n); TAVP *pai = obtemPai(n);
 	if  (irmao->cor == 'P') {
 		if((irmao->esq)&&(irmao->dir)){
-			if ((n == pai->esq) && (irmao->dir->cor == 'P') && (irmao->esq->cor == 'V')) { /* this last test is trivial too due to cases 2-4. */
+			if ((n == pai->esq) && (irmao->dir->cor == 'P') && (irmao->esq->cor == 'V')) { 
 				irmao->cor = 'V';
 				irmao->esq->cor = 'P';
 				arvore = RSD(arvore,irmao);
 			} 
-			else if ((n == pai->dir) && (irmao->esq->cor == 'P') && (irmao->dir->cor == 'V')) {/* this last test is trivial too due to cases 2-4. */
+			else if ((n == pai->dir) && (irmao->esq->cor == 'P') && (irmao->dir->cor == 'V')) {
 				irmao->cor = 'V';
 				irmao->dir->cor = 'P';
 				arvore = RSE(arvore,irmao);
 			}
 		}
 	}
-	delete_case6(n,arvore);
+	removeNivel6(n,arvore);
 }
 
-void delete_case6(TAVP *n, TAVP *arvore){
-	printf("chegou caso 6\n");
+void removeNivel6(TAVP *n, TAVP *arvore){
 	TAVP *irmao = obtemIrmao(n); 
 	TAVP* pai = obtemPai(n);
 	irmao->cor = pai->cor;
@@ -623,7 +564,6 @@ TAVP* remocaoFolha(TAVP*n,TAVP*arvore){
 }
 
 TAVP* pretoPreto(TAVP *arvore, TAVP *no){
-    printf("Chegou aqui\n");
     TAVP *pai = obtemPai(no); TAVP *irmao = obtemIrmao(no);
     if(no == pai->dir && eFolha(irmao)){
         pai -> esq -> cor = 'V';
@@ -633,14 +573,12 @@ TAVP* pretoPreto(TAVP *arvore, TAVP *no){
         pai -> cor = 'V';
     }
     else if(no == pai->dir&&(irmao -> esq && irmao->esq->cor=='V')){
-        printf("Chegou aqui\n");
         arvore = RSD(arvore,pai);
         irmao -> esq -> cor = 'P';
         pai -> cor = 'P';
         irmao -> cor = 'V';
     }
     else if(no == pai->esq&&(!irmao -> dir || irmao->dir->cor=='P')){
-        printf("Chegou aqui\n");
         arvore = RSD(arvore,irmao);
         arvore = RSE(arvore,pai);
         pai -> cor = 'P';
@@ -649,14 +587,12 @@ TAVP* pretoPreto(TAVP *arvore, TAVP *no){
         if(irmao -> dir)irmao -> dir -> cor = 'V';
     }
     else if(no == pai->esq&&(irmao -> dir && irmao->dir->cor=='V')){
-        printf("Chegou aqui\n");
         arvore = RSE(arvore,pai);
         irmao -> dir -> cor = 'P';
         pai -> cor = 'P';
         irmao -> cor = 'V';
     }
     else if(no == pai->dir&&(!irmao -> esq || irmao->esq->cor=='P')){
-        printf("Chegou aqui\n");
         arvore = RSE(arvore,irmao);
         arvore = RSD(arvore,pai);
         pai -> cor = 'P';
@@ -664,26 +600,10 @@ TAVP* pretoPreto(TAVP *arvore, TAVP *no){
         irmao -> cor = 'P';
         if(irmao -> esq)irmao -> esq -> cor = 'V';
     }
-    printf("Chegou aqui\n");
     liberacaoRemocao(no);
     return arvore;
 }
  
-/*TAVP* vermelhoPreto(TAVP* arvore,TAVP* n){	
-	TAVP *pai = obtemPai(n); TAVP *irmao = obtemIrmao(n);
-	if(n == pai->esq&&(!irmao -> dir || irmao->dir->cor=='P')){
-        printf("Chegou aqui\n");
-        arvore = RSD(arvore,irmao);
-        arvore = RSE(arvore,pai);
-        pai->cor = 'P';
-        obtemPai(pai)->cor = 'V';
-        irmao->cor = 'P';
-        if(irmao->dir) irmao->dir->cor = 'V';
-    }
-    return arvore;
-	
-}
-*/
 TAVP* obtemIrmao(TAVP* no){
 	if((!no)||(!obtemPai(no))){
 		return NULL;
@@ -734,50 +654,4 @@ void liberacaoRemocao(TAVP* filho){
 	free(filho);
 }
 
-/*void troca(TAVP* filho, TAVP* no){                      //NÃƒO FUNCIONA - TESTADO
-	TAVP*pai_no = obtemPai(no),*pai_filho = obtemPai(filho), *aux = inicializaTAVP();
-	if(pai_no){
-		if(pai_no -> dir == no){
-			pai_no -> dir = filho;
-			aux -> esq = filho -> esq;
-			aux -> dir = filho -> dir;
-			filho -> esq = no -> esq;
-			filho -> dir = no -> dir;
-			no -> esq = aux -> esq;
-			no -> dir = aux -> dir;
-			if(pai_filho -> dir == filho){
-				pai_filho -> dir = no;
-			}else{
-				pai_filho -> esq = no;
-			}
-			free(aux);
-		}else{
-			pai_no -> esq = filho;
-			aux -> esq = filho -> esq;
-			aux -> dir = filho -> dir;
-			filho -> esq = no -> esq;
-			filho -> dir = no -> dir;
-			no -> esq = aux -> esq;
-			no -> dir = aux -> dir;
-			if(pai_filho -> dir == filho){
-				pai_filho -> dir = no;
-			}else{
-				pai_filho -> esq = no;
-			}
-			free(aux);
-		}
-	}else{
-		aux -> esq = filho -> esq;
-		aux -> dir = filho -> dir;
-		filho -> esq = no -> esq;
-		filho -> dir = no -> dir;
-		no -> esq = aux -> esq;
-		no -> dir = aux -> dir;
-		if(pai_filho -> dir == filho){
-			pai_filho -> dir = no;
-		}else{
-			pai_filho -> esq = no;
-		}
-		free(aux);
-	}*/
 
